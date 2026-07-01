@@ -1,7 +1,8 @@
 NAME = ft_ping
 CC = cc
-CFLAGS = -g -Wall -Wextra -Werror
-SRC = main.c
+CFLAGS = -g 
+SRC = main.c \
+      utils.c
 
 OBJS = $(SRC:.c=.o)
 

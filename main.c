@@ -1,48 +1,76 @@
-// ping adress
-// ping -v address
-// ping -? address
-#include <stdio.h>
-#include <stdlib.h>
-#include <ctype.h>
+#include "header.h"
 
-#define TRUE 0
-#define FALSE 1
-#define EDGE_CASE 2
+static void findAddr(char **dest, const char* src) {
+	if (!strcmp("-v", src))
+		return;
+	(*dest) = strdup(src);
+}
 
-static int isFlag(const char *s) {	
-	if (*s != '-')
-		return (FALSE);
-	s++;
-	while (*s) {
-		if (*s != '?' && *s != 'v')
-			return (EDGE_CASE);
-		s++;		
+static size_t get_addrs_size(size_t len, char **srcs) {
+	size_t i = 1;
+	size_t count = 0;
+	while (i < len) {
+		if (!strcmp("-v", srcs[i])) {
+			i++;
+			continue;
+		}
+		i++;
+		count++;
 	}
-	return (TRUE);
+	return (count);
 }
 
-static void ft_error(const char* title, const char* s) {
-	fprintf(stderr, "%s: %s\n", title, s);
-	exit(1);
-}
-
-static void ft_help(void) {
-	fprintf(stderr, "Options:\n-v\n-?\n");
-	exit(1);
+static void isHelp(size_t len, char **srcs) {
+	for (size_t i = 1; i < len; i++) {
+		if (!strcmp(srcs[i], "-?"))
+			ft_help();
+	}
 }
 
 int main(int ac, char **av) {
-	(void)av;
-	if (ac < 2)
+	if (ac < 2)		
 		ft_error("usage error", "Require destination address");
-	if (ac == 2) {
-		if (isFlag(av[1]) == EDGE_CASE)
-			ft_help();
-		else if (isFlag(av[1]) == TRUE)
-			ft_error("usage error", "Require destination address");
-		else
-			return (0);
+
+	isHelp(ac, av);
+	
+	t_net net;
+	net.addrs = NULL;
+	net.f_verbose = false;
+	net.len_addrs = 0;
+	size_t i = 1;
+	size_t j = 0;
+	
+	net.len_addrs = get_addrs_size(ac, av);
+	net.addrs = malloc(sizeof(char**) * (net.len_addrs + 1));
+	if (!net.addrs)
+		ft_error("malloc", "failed to allocate addrs f[main.c]");
+
+	for (int i = 0; i < net.len_addrs; i++) {
+		net.addrs[i] = NULL;
 	}
-	if (ac > 2) .....
-	return (0);	
+
+	while (i < ac) {
+		if (!strcmp("-v", av[i])) {
+			net.f_verbose = true;
+	       		i++;
+		}
+		if (j < net.len_addrs) {
+			findAddr(&net.addrs[j], av[i]);
+			j++;
+		}
+		i++;
+	}
+	if (net.len_addrs == 0)
+		ft_error("usage error", "Require destination address");
+
+	printf("verbose: %d\n", net.f_verbose, net.f_verbose);
+
+	for (int i = 0; i < net.len_addrs; i++) {
+		printf("addr[%d]: %s\n", i, net.addrs[i]);
+	}
+
+	for (int i = 0; i < net.len_addrs; i++) {
+		free(net.addrs[i]);
+	}
+	free(net.addrs);
 }
