@@ -2,6 +2,7 @@ NAME = ft_ping
 CC = cc
 CFLAGS = -g 
 SRC = main.c \
+      ping.c \
       utils.c
 
 OBJS = $(SRC:.c=.o)
