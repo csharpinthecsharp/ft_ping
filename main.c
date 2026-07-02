@@ -100,6 +100,8 @@ int main(int ac, char **av) {
 		hints.ai_flags |= AI_IDN; // handle non-ascii (gûûgle.comi)
 						//
 		int rc = getaddrinfo(net.addrs[i], NULL, &hints, &res);
+		if (rc)
+			ft_error("ft_ping", "unknown host");
 
 		char ip_print[res->ai_addrlen];
 		struct sockaddr_in *ip = (struct sockaddr_in *)res->ai_addr;
