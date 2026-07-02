@@ -15,3 +15,17 @@ void ft_help(void) {
 			"      --usage		give a short usage message\n");
 	exit(1);
 }
+
+void free_struct(t_net *net) {
+	if (net) {
+		for (int i = 0; i < net->len_addrs; i++) {
+			if (net->ad[i].addr)
+				free(net->ad[i].addr);
+			if (net->ad[i].print_ip)
+				free(net->ad[i].print_ip);
+		}
+		if (net->ad)
+			free(net->ad);
+		close(net->sockfd);
+	}
+}
