@@ -118,7 +118,7 @@ int main(int ac, char **av) {
 	pkt->sequence=htons(0);
 	socklen_t addr_l = sizeof(struct sockaddr_in);
 
-	pkt->checksum = get_checksum(buf, sizeof(buf));
+	pkt->checksum = htons(get_checksum(buf, sizeof(buf)));
 	ssize_t b = sendto(net.sockfd,
 		       	buf,
 		       	sizeof(buf),
