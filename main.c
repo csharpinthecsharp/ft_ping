@@ -58,7 +58,9 @@ static void init_struct(t_net *net) {
 	net->sockfd = -1;
 }
 
-uint16_t get_checksum(void *buf, size_t len) {
+uint16_t
+get_checksum(void *buf, size_t len)
+{
 	uint8_t *dt = (uint8_t*)buf;
 	uint32_t sum = 0;
 
@@ -76,7 +78,69 @@ uint16_t get_checksum(void *buf, size_t len) {
 	return (uint16_t)(~sum);
 }
 
-int main(int ac, char **av) {
+void
+gen_header(void *buf, uint16_t seq)
+{
+	memset(buf, 0, sizeof(buf));
+	t_icmp *pkt = (t_icmp*)(buf);
+
+	pkt->type = ICMP_ECHO;
+	pkt->code = 0;
+	pkt->id = htons(getpid());
+	pkt->seq = seq;
+	socklen_t addr_l = sizeof(struct sockaddr_in);
+
+	pkt->checksum = htons(get_checksum(buf, sizeof(buf)));	
+}
+
+void 
+send_packet(int fd, const void *buf, size_t len,
+	       	const struct sockaddr* dest_addr,
+	       	socklen_t dest_len)
+{	
+	ssize_t r = sendto(fd, buf, len, 0, dest_addr, dest_len);
+	if (r < 0)
+		ft_error("ft_ping", strerror(errno));
+	printf("Sent %zd bytes\n", r);
+}	
+
+void
+recv_packet(int fd, void *buf)
+{
+	struct timeval tv;
+	tv.tv_sec = 1;
+	tv.tv_usec = 0;
+	setsockopt(fd, SOL_SOCKET, SO_RCVTIMEO, &tv, sizeof(tv));
+
+	struct sockaddr_in from;
+	struct iovec iov;
+	struct msghdr msg;
+	struct cmsghdr *cmsg;
+	char cmsg_data[1024];
+	iov.iov_base = buf;
+	iov.iov_len = sizeof(buf);
+	memset(&from, 0, sizeof(from));
+	msg.msg_name = &from;
+	msg.msg_namelen = sizeof(from);
+	msg.msg_iov = &iov;
+	msg.msg_iovlen = 1;
+	msg.msg_control = cmsg_data;
+	msg.msg_controllen = sizeof(cmsg_data);
+	int r = recvmsg(fd, &msg, 0);
+	if (r < 0) {
+		if (errno == EAGAIN || errno == EWOULDBLOCK)
+			printf("Timeout..\n");
+		else
+			ft_error("ft_ping", strerror(errno));
+	}
+	t_icmp *iptr = (t_icmp *)(buf + 20);
+	if (iptr->type == ICMP_ECHOREPLY && iptr->id == htons(getpid()))
+		printf("Receiv %zd bytes\n", r);
+}
+
+int
+main(int ac, char **av)
+{
 	if (getuid() != 0)
 		ft_error("ft_ping", "Require root permission");
 	if (ac < 2)		
@@ -95,70 +159,13 @@ int main(int ac, char **av) {
 	}
 	net.sockfd = create_socket();
 	get_ping_infos(&net);
-	//create packet;
-	//Sendto (packet);
-	//PING LOOP {
-	struct icmp_header {
-		uint8_t type; //0x08 (8) for echo request
-		uint8_t code; //0 for basic ping request
-		uint16_t checksum; //Unique ID 
-		uint16_t identifier; //Track if packet #1 arrived before 2 or if 2 swas lost
-		uint16_t sequence; //16 bit handle with htons();
-	};
-	//each packet need a header
-	uint8_t buf[64];
-	memset(buf, 0, sizeof(buf));
-	struct icmp_header *pkt = (struct icmp_header *)buf;
-
-
-	// !!!!!!!!!!!!!!!!!!!!!!!!!!!! SEQUENCE INCREMENT A CHAQUE NOUVEL ENVOI	
-	pkt->type=ICMP_ECHO;
-	pkt->code=0;
-	pkt->identifier=htons(getpid());
-	pkt->sequence=htons(0);
-	socklen_t addr_l = sizeof(struct sockaddr_in);
-
-	pkt->checksum = htons(get_checksum(buf, sizeof(buf)));
-	ssize_t b = sendto(net.sockfd,
-		       	buf,
-		       	sizeof(buf),
-		       	0,
-		       	(struct sockaddr *)net.ad[0].ip,
-		       	sizeof(struct sockaddr_in));
-	if (b < 0)
-		ft_error("ft_ping", strerror(errno));
-	printf("Sent %zd bytes\n", b);
-
-	struct timeval tv;
-	tv.tv_sec = 1;
-	tv.tv_usec = 0;
-	setsockopt(net.sockfd, SOL_SOCKET, SO_RCVTIMEO, &tv, sizeof(tv));
-
-	struct sockaddr_in from;
-	struct iovec iov;
-	struct msghdr msg;
-	struct cmsghdr *cmsg;
-	char cmsg_data[1024];
-	iov.iov_base = buf;
-	iov.iov_len = sizeof(buf);
-	memset(&from, 0, sizeof(from));
-	msg.msg_name = &from;
-	msg.msg_namelen = sizeof(from);
-	msg.msg_iov = &iov;
-	msg.msg_iovlen = 1;
-	msg.msg_control = cmsg_data;
-	msg.msg_controllen = sizeof(cmsg_data);
-	int r = recvmsg(net.sockfd, &msg, 0);
-	if (r < 0) {
-		if (errno == EAGAIN || errno == EWOULDBLOCK)
-			printf("Timeout..\n");
-		else
-			ft_error("ft_ping", strerror(errno));
+	while (1) {
+		uint16_t seq = htons(0);
+		uint8_t buf[64];
+		gen_header(buf, seq);
+		send_packet(net.sockfd, buf, sizeof(buf), (struct sockaddr*)net.ad[0].ip, sizeof(struct sockaddr_in));
+		recv_packet(net.sockfd, buf);
+		seq += htons(1);
 	}
-	// EXTRAIRE TTL ENSUITE QUAND CA MARCHE
-	struct icmp_header *iptr = (struct icmp_header*)(buf + 20);
-	// ECHOREPLY when fixed
-	if (iptr->type == ICMP_ECHOREPLY && iptr->identifier == htons(getpid()))
-		printf("Receiv %zd bytes\n", r);
 	free_struct(&net);
 }

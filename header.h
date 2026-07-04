@@ -16,6 +16,14 @@
 #include <arpa/inet.h>
 #include <stdint.h>
 #include <netinet/ip_icmp.h>
+	
+typedef struct s_icmp {
+	uint8_t type;
+	uint8_t code;
+	uint16_t checksum;
+	uint16_t id;
+	uint16_t seq;
+} t_icmp;
 
 typedef struct s_addr {
 	char* addr;
