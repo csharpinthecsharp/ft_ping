@@ -1,12 +1,22 @@
 #include "header.h"
 
-static void findAddr(char **dest, const char* src) {
+bool stop = false;
+
+static void
+sigintHandler(int sig)
+{
+	stop = true;
+}
+
+static void
+findAddr(char **dest, const char* src) {
 	if (!strcmp("-v", src))
 		return;
 	(*dest) = strdup(src);
 }
 
-static size_t get_addrs_size(size_t len, char **srcs) {
+static size_t
+get_addrs_size(size_t len, char **srcs) {
 	size_t i = 1;
 	size_t count = 0;
 	while (i < len) {
@@ -20,13 +30,15 @@ static size_t get_addrs_size(size_t len, char **srcs) {
 	return (count);
 }
 
-static void parse_args (t_net *net, int ac, char **av) {	
+static void
+parse_args (t_net *net, int ac, char **av) {	
 	size_t i = 1;
 	size_t j = 0;
 	for (int i = 0; i < net->len_addrs; i++) {
 		net->ad[i].addr = NULL;
 		net->ad[i].len_addr = 0;
 		net->ad[i].print_ip = NULL;
+		net->ad[i].ip = NULL;
 	}
 
 	while (i < ac) {
@@ -44,14 +56,16 @@ static void parse_args (t_net *net, int ac, char **av) {
 		ft_error("usage error", "Require destination address");
 }
 
-static void isHelp(size_t len, char **srcs) {
+static void
+isHelp(size_t len, char **srcs) {
 	for (size_t i = 1; i < len; i++) {
 		if (!strcmp(srcs[i], "-?"))
 			ft_help();
 	}
 }
 
-static void init_struct(t_net *net) {
+static void
+init_struct(t_net *net) {
 	net->ad = NULL;
 	net->f_verbose = false;
 	net->len_addrs = 0;
@@ -151,6 +165,9 @@ main(int ac, char **av)
 		ft_error("ft_ping", "Require root permission");
 	if (ac < 2)		
 		ft_error("usage error", "Require destination address");
+
+	signal(SIGINT, sigintHandler);
+
 	isHelp(ac, av);
 	t_net net;
 	init_struct(&net);
@@ -168,7 +185,7 @@ main(int ac, char **av)
 
 	
 	uint16_t seq = htons(0);
-	while (1) {
+	while (!stop) {
 		uint8_t buf[64];
 		gen_header(buf, sizeof(buf), seq);
 		send_packet(net.sockfd, buf, sizeof(buf), (struct sockaddr*)net.ad[0].ip, sizeof(struct sockaddr_in));

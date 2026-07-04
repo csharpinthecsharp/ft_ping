@@ -1,11 +1,15 @@
 #include "header.h"
 
-void ft_error(const char* title, const char* s) {
+void
+ft_error(const char* title, const char* s)
+{
 	fprintf(stderr, "%s: %s\n", title, s);
 	exit(1);
 }
 
-void ft_help(void) {
+void
+ft_help(void)
+{
 	fprintf(stderr, "Usage: ping [OPTION...] HOST...\n "
 			"SEND ICMP ECHO_REQUEST packets to network hosts.\n\n "
 			"Options valid for all request types:\n\n "
@@ -16,13 +20,19 @@ void ft_help(void) {
 	exit(1);
 }
 
-void free_struct(t_net *net) {
+void
+free_struct(t_net *net)
+{
 	if (net) {
 		for (int i = 0; i < net->len_addrs; i++) {
-			if (net->ad[i].addr)
-				free(net->ad[i].addr);
-			if (net->ad[i].print_ip)
-				free(net->ad[i].print_ip);
+			if (net->ad) {
+				if (net->ad[i].addr)
+					free(net->ad[i].addr);
+				if (net->ad[i].print_ip)
+					free(net->ad[i].print_ip);
+				if (net->ad[i].ip)
+					free(net->ad[i].ip);
+			}
 		}
 		if (net->ad)
 			free(net->ad);

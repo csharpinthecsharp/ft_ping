@@ -16,7 +16,8 @@
 #include <arpa/inet.h>
 #include <stdint.h>
 #include <netinet/ip_icmp.h>
-	
+#include <signal.h>
+
 typedef struct s_icmp {
 	uint8_t type;
 	uint8_t code;
@@ -45,5 +46,5 @@ void ft_help(void);
 void free_struct(t_net *net);
 
 int create_socket(void);
-int get_ping_infos(t_net *net);
+void get_ping_infos(t_net *net);
 #endif

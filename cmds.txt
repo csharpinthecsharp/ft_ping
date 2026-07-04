@@ -1,0 +1,2 @@
+sudo tcpdump -i any icmp -vv -n // get echo out & in
+sudo valgrind --leak-check=full --log-file=log.txt ./ft_ping google.com dzdzd

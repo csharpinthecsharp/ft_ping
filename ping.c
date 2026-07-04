@@ -1,6 +1,9 @@
 #include "header.h"
+#define FIRST_ARG 0
 
-int create_socket(void) {
+int
+create_socket(void)
+{
 	int fd;
 	fd = socket(AF_INET, SOCK_RAW, IPPROTO_ICMP);
 	if (fd < 0)
@@ -8,11 +11,9 @@ int create_socket(void) {
 	return (fd);
 }
 
-void bind_local(t_net *net) {
-
-}
-
-int get_ping_infos(t_net *net) {
+void
+get_ping_infos(t_net *net)
+{
 	for (size_t i = 0; i < net->len_addrs; i++) { 
 		struct addrinfo hints, *res;
 		
@@ -23,13 +24,17 @@ int get_ping_infos(t_net *net) {
 
 		int rc = getaddrinfo(net->ad[i].addr, NULL, &hints, &res);
 		if (rc) {
-			free_struct(net);
-			ft_error("ft_ping", "unknown host");
+			if (i == 0) {
+				free_struct(net);
+				ft_error("ft_ping", "unknown host");
+			}
+			return;
 		}
 		
 		net->ad[i].len_addr = res->ai_addrlen;
-		net->ad[i].print_ip = malloc(sizeof(char*) * (net->ad[i].len_addr + 1));;
-		net->ad[i].ip = (struct sockaddr_in *)res->ai_addr;
+		net->ad[i].print_ip = malloc(sizeof(char*) * (net->ad[i].len_addr + 1));
+		net->ad[i].ip = malloc(sizeof(struct sockaddr_in));
+		memcpy(net->ad[i].ip, res->ai_addr, sizeof(struct sockaddr_in));
 		inet_ntop(AF_INET, &(net->ad[i].ip->sin_addr), net->ad[i].print_ip, net->ad[i].len_addr);
 		printf("addr: %s\naddrlen: %d\nhostname: %s\n",
 			       	net->ad[i].print_ip, net->ad[i].len_addr, net->ad[i].addr);
