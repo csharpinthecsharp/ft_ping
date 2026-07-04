@@ -14,6 +14,8 @@
 #include <netdb.h>
 #include <sys/types.h>
 #include <arpa/inet.h>
+#include <stdint.h>
+#include <netinet/ip_icmp.h>
 
 typedef struct s_addr {
 	char* addr;

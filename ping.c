@@ -8,6 +8,10 @@ int create_socket(void) {
 	return (fd);
 }
 
+void bind_local(t_net *net) {
+
+}
+
 int get_ping_infos(t_net *net) {
 	for (size_t i = 0; i < net->len_addrs; i++) { 
 		struct addrinfo hints, *res;
@@ -16,7 +20,7 @@ int get_ping_infos(t_net *net) {
 		hints.ai_family = AF_INET; // IPV4
 		hints.ai_flags = AI_CANONNAME; // IP + CANONICAL IP (www,etc)
 		hints.ai_flags |= AI_IDN; // handle non-ascii (gûûgle.comi)
-					  //
+
 		int rc = getaddrinfo(net->ad[i].addr, NULL, &hints, &res);
 		if (rc) {
 			free_struct(net);
