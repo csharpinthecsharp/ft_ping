@@ -134,13 +134,9 @@ recv_packet(t_net *net, size_t seq, int fd, size_t len, void *buf)
 	}
 	t_icmp *iptr = (t_icmp *)(buf + 20);
 	if (iptr->type == ICMP_ECHOREPLY && iptr->id == htons(getpid())) {
-		if (seq == 0) {
-			fprintf(stdout, "PING %s (%s): %d data bytes\n",
-				       	net->ad[0].addr, net->ad[0].print_ip,
-				       	(len - sizeof(t_icmp)));
-		}
-		fprintf(stdout, "%ld bytes from %s: icmp_seq=%ld ttl= time=\n",
-			       	r, net->ad[0].print_ip, seq);
+		fprintf(stdout, "PING %s (%s): %d\n",
+			       	net->ad[0].addr, net->ad[0].print_ip,
+			       	sizeof(buf) - sizeof(t_icmp));
 	}
 }
 
