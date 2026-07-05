@@ -13,7 +13,7 @@ check_help(size_t len, char **srcs)
 		else if (!strcmp(srcs[i], "--usage"))
 			sh_help();
 		if (marked &&
-			(strcmp("-v", srcs[i]) ||
+			(strcmp("-v", srcs[i]) &&
 			 strcmp("--verbose", srcs[i])))
 			err_help(srcs[i][1]);
 	}
@@ -34,7 +34,8 @@ init_struct(t_net *net)
 void
 find_addr(char **dest, const char* src)
 {
-	if (!strcmp("-v", src))
+	if (!strcmp("-v", src) ||
+			(!strcmp("--verbose", src)))
 		return;
 	(*dest) = strdup(src);
 }

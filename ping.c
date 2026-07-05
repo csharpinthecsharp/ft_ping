@@ -29,7 +29,7 @@ get_ping_infos(t_net *net)
 				ft_error("ft_ping", "unknown host");
 			}
 			net->wrong_host_mltp = true;
-			return;
+			continue;
 		}
 		
 		net->ad[i].len_addr = res->ai_addrlen;

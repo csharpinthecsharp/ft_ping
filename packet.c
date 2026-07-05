@@ -29,8 +29,7 @@ recv_packet(t_net *net, size_t seq, int fd, size_t len, void *buf)
 	msg.msg_namelen = sizeof(from);
 	msg.msg_iov = &iov;
 	msg.msg_iovlen = 1;
-
-       	struct ip *ip_hdr = (struct ip*)buf;
+	struct ip *ip_hdr = (struct ip*)buf;
 
 	int r = recvmsg(fd, &msg, 0);
 	if (r < 0) {

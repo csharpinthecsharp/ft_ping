@@ -46,8 +46,10 @@ main(int ac, char **av)
 			"round-trip min/avg/max/stddev = ?/?/?/? ms\n", // STANDARD DEVIATION FORMULA
 		       		net.ad[0].addr, ntohs(seq), net.p_succ, ((net.p_lost * 100) / (size_t)ntohs(seq)));
 
-	if (net.wrong_host_mltp)
+	if (net.wrong_host_mltp) {
+		free_struct(&net);
 		ft_error("ft_ping", "unknown host");
+	}
 
 	free_struct(&net);
 }

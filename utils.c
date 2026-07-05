@@ -49,17 +49,16 @@ free_struct(t_net *net)
 {
 	if (net) {
 		for (int i = 0; i < net->len_addrs; i++) {
-			if (net->ad) {
-				if (net->ad[i].addr)
-					free(net->ad[i].addr);
-				if (net->ad[i].print_ip)
-					free(net->ad[i].print_ip);
-				if (net->ad[i].ip)
-					free(net->ad[i].ip);
-			}
+			if (net->ad[i].addr)
+				free(net->ad[i].addr);
+			if (net->ad[i].print_ip)
+				free(net->ad[i].print_ip);
+			if (net->ad[i].ip)
+				free(net->ad[i].ip);
 		}
-		if (net->ad)
-			free(net->ad);
-		close(net->sockfd);
 	}
+	if (net->ad)
+		free(net->ad);
+	close(net->sockfd);
 }
+
