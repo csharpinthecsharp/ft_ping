@@ -18,7 +18,7 @@
 #include <netinet/ip_icmp.h>
 #include <signal.h>
 #include <sys/time.h>
-
+#include <netinet/ip.h>
 typedef struct s_icmp {
 	uint8_t type;
 	uint8_t code;

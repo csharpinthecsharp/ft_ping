@@ -36,8 +36,6 @@ get_ping_infos(t_net *net)
 		net->ad[i].ip = malloc(sizeof(struct sockaddr_in));
 		memcpy(net->ad[i].ip, res->ai_addr, sizeof(struct sockaddr_in));
 		inet_ntop(AF_INET, &(net->ad[i].ip->sin_addr), net->ad[i].print_ip, net->ad[i].len_addr);
-		printf("addr: %s\naddrlen: %d\nhostname: %s\n",
-			       	net->ad[i].print_ip, net->ad[i].len_addr, net->ad[i].addr);
 		freeaddrinfo(res);
 	}
 }

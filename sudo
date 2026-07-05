@@ -1,3 +1,0 @@
-cmds.txt tc qdisc add dev INTERFACE_NAME root netem loss 50%
-cmds.txt tc qdisc add dev INTERFACE_NAME root netem loss 0%
-cmds.txt tc qdisc del dev INTERFACE_NAME root

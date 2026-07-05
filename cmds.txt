@@ -1,2 +1,5 @@
 sudo tcpdump -i any icmp -vv -n // get echo out & in
 sudo valgrind --leak-check=full --log-file=log.txt ./ft_ping google.com dzdzd
+cmds.txt tc qdisc add dev INTERFACE_NAME root netem loss 50%
+cmds.txt tc qdisc add dev INTERFACE_NAME root netem loss 0%
+cmds.txt tc qdisc del dev INTERFACE_NAME root
