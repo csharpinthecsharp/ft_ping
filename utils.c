@@ -8,9 +8,9 @@ ft_error(const char* title, const char* s)
 }
 
 void
-ft_help(void)
+help(void)
 {
-	fprintf(stderr, "Usage: ping [OPTION...] HOST...\n "
+	fprintf(stdout, "Usage: ./ft_ping [OPTION...] HOST...\n "
 			"SEND ICMP ECHO_REQUEST packets to network hosts.\n\n "
 			"Options valid for all request types:\n\n "
 			" -v, --verbose		verbose output\n\n"
@@ -18,6 +18,30 @@ ft_help(void)
 			" -?, --help		give this help list\n"
 			"      --usage		give a short usage message\n");
 	exit(1);
+}
+
+void
+sh_help(void)
+{
+	fprintf(stdout, "Usage: ./ft_ping [-v?]\n"
+			"[--verbose]\n"
+			"[--help] [--usage]\n"
+			"HOST...\n");
+	exit(1);
+}
+
+void
+err_help(const char c)
+{
+	fprintf(stdout, "ft_ping: invalid option -- '%c'\n"
+			"Try './ft_ping --help' or './ft_ping --usage' for more information.\n", c);
+	exit(1);
+}
+
+float
+time_calc(struct timeval* start, struct timeval* end)
+{
+	return (end->tv_sec - start->tv_sec) * 1000.0 + (end->tv_usec - start->tv_usec) / 1000.0;
 }
 
 void

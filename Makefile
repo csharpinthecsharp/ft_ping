@@ -3,7 +3,10 @@ CC = cc
 CFLAGS = -g 
 SRC = main.c \
       ping.c \
-      utils.c
+      utils.c \
+      packet.c \
+      icmp.c \
+      parse.c 
 
 OBJS = $(SRC:.c=.o)
 

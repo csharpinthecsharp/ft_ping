@@ -18,9 +18,9 @@ get_ping_infos(t_net *net)
 		struct addrinfo hints, *res;
 		
 		memset(&hints, 0, sizeof(hints));
-		hints.ai_family = AF_INET; // IPV4
-		hints.ai_flags = AI_CANONNAME; // IP + CANONICAL IP (www,etc)
-		hints.ai_flags |= AI_IDN; // handle non-ascii (gûûgle.comi)
+		hints.ai_family = AF_INET;
+		hints.ai_flags = AI_CANONNAME;
+		hints.ai_flags |= AI_IDN;
 
 		int rc = getaddrinfo(net->ad[i].addr, NULL, &hints, &res);
 		if (rc) {
@@ -28,6 +28,7 @@ get_ping_infos(t_net *net)
 				free_struct(net);
 				ft_error("ft_ping", "unknown host");
 			}
+			net->wrong_host_mltp = true;
 			return;
 		}
 		
