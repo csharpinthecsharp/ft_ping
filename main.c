@@ -70,6 +70,8 @@ init_struct(t_net *net) {
 	net->f_verbose = false;
 	net->len_addrs = 0;
 	net->sockfd = -1;
+	net->p_lost = 0;
+	net->p_succ = 0;
 }
 
 uint16_t
@@ -115,7 +117,13 @@ send_packet(int fd, const void *buf, size_t len,
 	ssize_t r = sendto(fd, buf, len, 0, dest_addr, dest_len);
 	if (r < 0)
 		ft_error("ft_ping", strerror(errno));
-}	
+}
+
+float
+time_calc(struct timeval* start, struct timeval* end)
+{
+	return (end->tv_sec - start->tv_sec) * 1000.0 + (end->tv_usec - start->tv_usec) / 1000.0;
+}
 
 void
 recv_packet(t_net *net, size_t seq, int fd, size_t len, void *buf)
@@ -142,7 +150,11 @@ recv_packet(t_net *net, size_t seq, int fd, size_t len, void *buf)
 	int r = recvmsg(fd, &msg, 0);
 	if (r < 0) {
 		if (errno == EAGAIN || errno == EWOULDBLOCK)
-			printf("Timeout..\n");
+		{
+			if (net->f_verbose)
+				printf("Timeout..\n");
+			net->p_lost++;
+		}
 		else
 			ft_error("ft_ping", strerror(errno));
 	}
@@ -153,9 +165,13 @@ recv_packet(t_net *net, size_t seq, int fd, size_t len, void *buf)
 				       	net->ad[0].addr, net->ad[0].print_ip,
 				       	(len - sizeof(t_icmp)));
 		}
-		fprintf(stdout, "%ld bytes from %s: icmp_seq=%ld ttl= time=\n",
-			       	r, net->ad[0].print_ip, seq);
+		gettimeofday(&net->t_end, NULL);
+		fprintf(stdout, "%ld bytes from %s: icmp_seq=%ld ttl= time=%1.3f ms\n",
+			       	r, net->ad[0].print_ip, seq, time_calc(&net->t_start, &net->t_end));
+		net->p_succ++;
 	}
+	else
+		gettimeofday(&net->t_end, NULL);
 }
 
 int
@@ -182,10 +198,11 @@ main(int ac, char **av)
 	}
 	net.sockfd = create_socket();
 	get_ping_infos(&net);
-
+	
 	
 	uint16_t seq = htons(0);
 	while (!stop) {
+		gettimeofday(&net.t_start, NULL);
 		uint8_t buf[64];
 		gen_header(buf, sizeof(buf), seq);
 		send_packet(net.sockfd, buf, sizeof(buf), (struct sockaddr*)net.ad[0].ip, sizeof(struct sockaddr_in));
@@ -193,5 +210,10 @@ main(int ac, char **av)
 		seq += htons(1);
 		usleep(1000000);
 	}
+	
+	fprintf(stdout, "--- %s ping statistics ---\n"
+			"%ld packets transmitted, %ld packets received, %ld%% packet loss\n"
+			"round-trip min/avg/max/stddev = ?/?/?/? ms\n",
+		       		net.ad[0].addr, ntohs(seq), net.p_succ, ((net.p_lost * 100) / (size_t)ntohs(seq)));
 	free_struct(&net);
 }

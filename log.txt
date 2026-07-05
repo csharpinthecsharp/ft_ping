@@ -1,15 +1,15 @@
-==10262== Memcheck, a memory error detector
-==10262== Copyright (C) 2002-2024, and GNU GPL'd, by Julian Seward et al.
-==10262== Using Valgrind-3.24.0 and LibVEX; rerun with -h for copyright info
-==10262== Command: ./ft_ping google.com dzdzd
-==10262== Parent PID: 10261
-==10262== 
-==10262== 
-==10262== HEAP SUMMARY:
-==10262==     in use at exit: 0 bytes in 0 blocks
-==10262==   total heap usage: 180 allocs, 180 frees, 41,195 bytes allocated
-==10262== 
-==10262== All heap blocks were freed -- no leaks are possible
-==10262== 
-==10262== For lists of detected and suppressed errors, rerun with: -s
-==10262== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)
+==10712== Memcheck, a memory error detector
+==10712== Copyright (C) 2002-2024, and GNU GPL'd, by Julian Seward et al.
+==10712== Using Valgrind-3.24.0 and LibVEX; rerun with -h for copyright info
+==10712== Command: ./ft_ping google.com dzdzd
+==10712== Parent PID: 10711
+==10712== 
+==10712== 
+==10712== HEAP SUMMARY:
+==10712==     in use at exit: 0 bytes in 0 blocks
+==10712==   total heap usage: 180 allocs, 180 frees, 41,195 bytes allocated
+==10712== 
+==10712== All heap blocks were freed -- no leaks are possible
+==10712== 
+==10712== For lists of detected and suppressed errors, rerun with: -s
+==10712== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)

@@ -17,6 +17,7 @@
 #include <stdint.h>
 #include <netinet/ip_icmp.h>
 #include <signal.h>
+#include <sys/time.h>
 
 typedef struct s_icmp {
 	uint8_t type;
@@ -38,7 +39,12 @@ typedef struct s_net {
 	size_t len_addrs;
 	t_addr* ad;
 	int sockfd;
+	size_t p_lost;
+	size_t p_succ; 
+	struct timeval t_start;
+	struct timeval t_end;
 } t_net;
+
 
 void ft_error(const char* title, const char* s);
 void ft_help(void);
