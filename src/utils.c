@@ -1,4 +1,4 @@
-#include "header.h"
+#include "../include/header.h"
 
 void
 ft_error(const char* title, const char* s)
@@ -31,10 +31,14 @@ sh_help(void)
 }
 
 void
-err_help(const char c)
+err_help(const char* s, const char* c)
 {
-	fprintf(stdout, "ft_ping: invalid option -- '%c'\n"
-			"Try './ft_ping --help' or './ft_ping --usage' for more information.\n", c);
+	if (!c)
+		fprintf(stdout, "ft_ping: %s\n"
+				"Try './ft_ping --help' or './ft_ping --usage' for more information.\n", s);
+	else 
+		fprintf(stdout, "ft_ping: %s '%c'\n"
+				"Try './ft_ping --help' or './ft_ping --usage' for more information.\n", s, c[1]);
 	exit(1);
 }
 

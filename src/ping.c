@@ -1,5 +1,4 @@
-#include "header.h"
-#define FIRST_ARG 0
+#include "../include/header.h"
 
 int
 create_socket(void)

@@ -1,4 +1,4 @@
-#include "header.h"
+#include "../include/header.h"
 
 bool stop = false;
 
@@ -14,7 +14,7 @@ main(int ac, char **av)
 	if (getuid() != 0)
 		ft_error("ft_ping", "Require root permission");
 	if (ac < 2)		
-		ft_error("usage error", "Require destination address");
+		err_help("missing host operand", NULL);
 
 	signal(SIGINT, sigintHandler);
 

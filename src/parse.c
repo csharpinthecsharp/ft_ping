@@ -1,4 +1,4 @@
-#include "header.h"
+#include "../include/header.h"
 
 void
 check_help(size_t len, char **srcs)
@@ -15,7 +15,7 @@ check_help(size_t len, char **srcs)
 		if (marked &&
 			(strcmp("-v", srcs[i]) &&
 			 strcmp("--verbose", srcs[i])))
-			err_help(srcs[i][1]);
+			err_help("invalid option --", srcs[i]);
 	}
 }
 

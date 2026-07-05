@@ -1,12 +1,12 @@
 NAME = ft_ping
 CC = cc
 CFLAGS = -g 
-SRC = main.c \
-      ping.c \
-      utils.c \
-      packet.c \
-      icmp.c \
-      parse.c 
+SRC = src/main.c \
+      src/ping.c \
+      src/utils.c \
+      src/packet.c \
+      src/icmp.c \
+      src/parse.c 
 
 OBJS = $(SRC:.c=.o)
 
