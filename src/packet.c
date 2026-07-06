@@ -83,7 +83,7 @@ handle_pkt_reply(t_net *net, void *buf, size_t len, uint16_t *seq, size_t r)
 	if (iptr->id != htons(getpid()))
 		return;
 
-	if (seq == 0) {
+	if (ntohs(*seq) == 0) {
 		if (net->f_verbose) {
 			fprintf(stdout, "PING %s (%s): %ld data bytes, id 0x%x = %d\n",
 				net->ad[0].addr, net->ad[0].print_ip,
