@@ -18,6 +18,7 @@ update_ms(t_net *net, float ms, size_t index)
 		net->ms_min = ms;
 	}
 	net->ms_total += ms;
+	net->ms_total2 += ms * ms;
 	if (ms < net->ms_min)
 	       net->ms_min = ms;
 	else if (ms > net->ms_max)
@@ -68,8 +69,6 @@ recv_packet(t_net *net, size_t seq, int fd, size_t len, void *buf)
 	if (iptr->id != htons(getpid()))
 		return (-1);
 
-	printf("Received %d bytes. Type: %d, Code: %d, ID: %d,; Seq: %d\n",
-			r, iptr->type, iptr->code, ntohs(iptr->id), seq);
 	if (seq == 0) {
 		if (net->f_verbose) {
 			fprintf(stdout, "PING %s (%s): %d data bytes, id 0x%x = %d\n",
@@ -92,5 +91,4 @@ recv_packet(t_net *net, size_t seq, int fd, size_t len, void *buf)
 	update_ms(net, ms, seq);
 	net->p_succ++;
 	return (0);
-	//	gettimeofday(&net->t_end, NULL);
 }

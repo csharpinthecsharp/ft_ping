@@ -31,6 +31,7 @@ typedef struct s_net {
 	float ms_min;
 	float ms_max;
 	float ms_total;
+	float ms_total2;
 } t_net;
 
 #endif

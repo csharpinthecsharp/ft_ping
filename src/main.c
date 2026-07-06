@@ -41,11 +41,15 @@ main(int ac, char **av)
 		}	
 	}
 	
+	int int_seq = ntohs(seq);
+	float avg = net.ms_total / int_seq;
+	float stddev = sqrt((net.ms_total2 / int_seq) - (avg * avg));
 	fprintf(stdout, "--- %s ping statistics ---\n"
-			"%ld packets transmitted, %ld packets received, %ld%% packet loss\n"
-			"round-trip min/avg/max/stddev = %1.3f/%1.3f/%1.3f/? ms\n",
-		       		net.ad[0].addr, ntohs(seq), net.p_succ, ((net.p_lost * 100) / (size_t)ntohs(seq)),
-					net.ms_min, (net.ms_total / (ntohs(seq))), net.ms_max);
+			"%ld packets transmitted, %d packets received, %ld%% packet loss\n"
+			"round-trip min/avg/max/stddev = %1.3f/%1.3f/%1.3f/%1.3f ms\n",
+		       		net.ad[0].addr, int_seq, net.p_succ, ((net.p_lost * 100) / int_seq),
+					net.ms_min, avg,
+				       	net.ms_max, stddev);
 
 	if (net.wrong_host_mltp) {
 		free_struct(&net);

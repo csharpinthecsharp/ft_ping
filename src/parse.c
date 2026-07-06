@@ -32,6 +32,7 @@ init_struct(t_net *net)
 	net->ms_min = 0.0f;
 	net->ms_max = 0.0f;
 	net->ms_total = 0.0f;
+	net->ms_total2 = 0.0f;
 }
 
 void
