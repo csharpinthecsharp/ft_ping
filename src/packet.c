@@ -10,29 +10,10 @@ send_packet(int fd, const void *buf, size_t len,
 		ft_error("ft_ping", strerror(errno));
 }
 
-static void
-update_ms(t_net *net, float ms, size_t index)
-{
-	if (index == 0) {
-		net->ms_max = ms;
-		net->ms_min = ms;
-	}
-	net->ms_total += ms;
-	net->ms_total2 += ms * ms;
-	if (ms < net->ms_min)
-	       net->ms_min = ms;
-	else if (ms > net->ms_max)
-		net->ms_max = ms;	
-}
 
-int
+size_t
 recv_packet(t_net *net, size_t seq, int fd, size_t len, void *buf)
 {
-	struct timeval tv;
-	tv.tv_sec = 1;
-	tv.tv_usec = 0;
-	int opt = 1;
-	setsockopt(fd, SOL_SOCKET, SO_RCVTIMEO, &tv, sizeof(tv));
 	struct sockaddr_in from;
 	struct iovec iov;
 	struct msghdr msg;
@@ -51,12 +32,45 @@ recv_packet(t_net *net, size_t seq, int fd, size_t len, void *buf)
 			if (net->f_verbose)
 				printf("Timeout..\n");
 			net->p_lost++;
-			return (-1);
 		}
 		else
 			ft_error("ft_ping", strerror(errno));
 	}
+	return (r);
+}
 
+static void
+update_ms(t_net *net, float ms, size_t index)
+{
+	if (index == 0) {
+		net->ms_max = ms;
+		net->ms_min = ms;
+	}
+	net->ms_total += ms;
+	net->ms_total2 += ms * ms;
+	if (ms < net->ms_min)
+	       net->ms_min = ms;
+	else if (ms > net->ms_max)
+		net->ms_max = ms;	
+}
+
+static void
+update_pkt_loop(t_net *net, uint16_t *seq, int ttl, float ms, size_t r)
+{
+	gettimeofday(&net->t_end, NULL);
+	ms = time_calc(&net->t_start, &net->t_end);
+	fprintf(stdout, "%ld bytes from %s: icmp_seq=%ld ttl=%d time=%1.3f ms\n",
+	r, net->ad[0].print_ip, ntohs(*(seq)), ttl, ms);
+	update_ms(net, ms, (*seq));
+	net->p_succ++;
+	(*seq) += ntohs(1);
+	sleep(1);
+}
+
+
+void
+handle_pkt_reply(t_net *net, void *buf, size_t len, uint16_t *seq, size_t r)
+{
 	struct ip *ip_hdr = (struct ip*)buf;
 	size_t iphlen = (ip_hdr->ip_hl * 4);
 	int ttl = (ip_hdr->ip_ttl);
@@ -65,9 +79,9 @@ recv_packet(t_net *net, size_t seq, int fd, size_t len, void *buf)
 	t_icmp *iptr = (t_icmp *)(buf + iphlen);
 
 	if (iptr->type != ICMP_ECHOREPLY)
-		return (-1);
+		return;
 	if (iptr->id != htons(getpid()))
-		return (-1);
+		return;
 
 	if (seq == 0) {
 		if (net->f_verbose) {
@@ -83,12 +97,5 @@ recv_packet(t_net *net, size_t seq, int fd, size_t len, void *buf)
 				(len - sizeof(t_icmp)));
 		}
 	}
-
-	gettimeofday(&net->t_end, NULL);
-	ms = time_calc(&net->t_start, &net->t_end);
-	fprintf(stdout, "%ld bytes from %s: icmp_seq=%ld ttl=%d time=%1.3f ms\n",
-	r, net->ad[0].print_ip, seq, ttl, ms);
-	update_ms(net, ms, seq);
-	net->p_succ++;
-	return (0);
+	update_pkt_loop(net, seq, ttl, ms, r);
 }

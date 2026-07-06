@@ -20,7 +20,8 @@ size_t get_addrs_size(size_t len, char **srcs);
 void init_struct(t_net *net);
 
 void send_packet(int fd, const void *buf, size_t len, const struct sockaddr* dest_addr, socklen_t dest_len);
-int recv_packet(t_net *net, size_t seq, int fd, size_t len, void *buf);
+size_t recv_packet(t_net *net, size_t seq, int fd, size_t len, void *buf);
+void handle_pkt_reply(t_net *net, void *buf, size_t len, uint16_t *seq, size_t r);
 
 uint16_t get_checksum(void *buf, size_t len);
 void gen_header(void *buf, size_t len, uint16_t seq);

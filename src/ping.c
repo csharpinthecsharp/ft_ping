@@ -4,9 +4,16 @@ int
 create_socket(void)
 {
 	int fd;
+	struct timeval tv;
+	tv.tv_sec = 1;
+	tv.tv_usec = 0;
+
 	fd = socket(AF_INET, SOCK_RAW, IPPROTO_ICMP);
 	if (fd < 0)
 		ft_error("ft_ping", strerror(errno));
+	
+	setsockopt(fd, SOL_SOCKET, SO_RCVTIMEO, &tv, sizeof(tv));
+
 	return (fd);
 }
 

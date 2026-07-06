@@ -30,22 +30,22 @@ main(int ac, char **av)
 	get_ping_infos(&net);
 	
 	uint16_t seq = htons(0);
+	size_t r = 0;
 	while (!stop) {
 		gettimeofday(&net.t_start, NULL);
 		uint8_t buf[64];
 		gen_header(buf, sizeof(buf), seq);
 		send_packet(net.sockfd, buf, sizeof(buf), (struct sockaddr*)net.ad[0].ip, sizeof(struct sockaddr_in));
-		if (recv_packet(&net, ntohs(seq), net.sockfd, sizeof(buf), buf) != -1) {
-			seq += htons(1);
-			usleep(1000000);
-		}	
+		r = recv_packet(&net, ntohs(seq), net.sockfd, sizeof(buf), buf);
+		if (r > 0)
+			handle_pkt_reply(&net, buf, sizeof(buf), &seq, r);
 	}
 	
-	int int_seq = ntohs(seq);
+	size_t int_seq = ntohs(seq);
 	float avg = net.ms_total / int_seq;
 	float stddev = sqrt((net.ms_total2 / int_seq) - (avg * avg));
 	fprintf(stdout, "--- %s ping statistics ---\n"
-			"%ld packets transmitted, %d packets received, %ld%% packet loss\n"
+			"%ld packets transmitted, %ld packets received, %ld%% packet loss\n"
 			"round-trip min/avg/max/stddev = %1.3f/%1.3f/%1.3f/%1.3f ms\n",
 		       		net.ad[0].addr, int_seq, net.p_succ, ((net.p_lost * 100) / int_seq),
 					net.ms_min, avg,
