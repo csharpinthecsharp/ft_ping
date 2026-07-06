@@ -30,7 +30,5 @@ gen_header(void *buf, size_t len, uint16_t seq)
 	pkt->code = 0;
 	pkt->id = htons(getpid());
 	pkt->seq = seq;
-	socklen_t addr_l = sizeof(struct sockaddr_in);
-
 	pkt->checksum = htons(get_checksum(buf, len));
 }

@@ -14,13 +14,13 @@ int create_socket(void);
 void get_ping_infos(t_net *net);
 
 void check_help(size_t len, char **srcs);
-void parse_args (t_net *net, int ac, char **av);
+void parse_args (t_net *net, size_t ac, char **av);
 void find_addr(char **dest, const char* src);
 size_t get_addrs_size(size_t len, char **srcs);
 void init_struct(t_net *net);
 
 void send_packet(int fd, const void *buf, size_t len, const struct sockaddr* dest_addr, socklen_t dest_len);
-size_t recv_packet(t_net *net, size_t seq, int fd, size_t len, void *buf);
+size_t recv_packet(t_net *net, int fd, size_t len, void *buf);
 void handle_pkt_reply(t_net *net, void *buf, size_t len, uint16_t *seq, size_t r);
 
 uint16_t get_checksum(void *buf, size_t len);

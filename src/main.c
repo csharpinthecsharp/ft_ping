@@ -5,6 +5,7 @@ bool stop = false;
 static void
 sigintHandler(int sig)
 {
+	(void)sig;
 	stop = true;
 }
 
@@ -36,7 +37,7 @@ main(int ac, char **av)
 		uint8_t buf[64];
 		gen_header(buf, sizeof(buf), seq);
 		send_packet(net.sockfd, buf, sizeof(buf), (struct sockaddr*)net.ad[0].ip, sizeof(struct sockaddr_in));
-		r = recv_packet(&net, ntohs(seq), net.sockfd, sizeof(buf), buf);
+		r = recv_packet(&net, net.sockfd, sizeof(buf), buf);
 		if (r > 0)
 			handle_pkt_reply(&net, buf, sizeof(buf), &seq, r);
 	}

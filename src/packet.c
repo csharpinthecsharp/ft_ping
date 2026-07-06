@@ -12,7 +12,7 @@ send_packet(int fd, const void *buf, size_t len,
 
 
 size_t
-recv_packet(t_net *net, size_t seq, int fd, size_t len, void *buf)
+recv_packet(t_net *net, int fd, size_t len, void *buf)
 {
 	struct sockaddr_in from;
 	struct iovec iov;
@@ -59,9 +59,9 @@ update_pkt_loop(t_net *net, uint16_t *seq, int ttl, float ms, size_t r)
 {
 	gettimeofday(&net->t_end, NULL);
 	ms = time_calc(&net->t_start, &net->t_end);
-	fprintf(stdout, "%ld bytes from %s: icmp_seq=%ld ttl=%d time=%1.3f ms\n",
-	r, net->ad[0].print_ip, ntohs(*(seq)), ttl, ms);
-	update_ms(net, ms, (*seq));
+	fprintf(stdout, "%ld bytes from %s: icmp_seq=%d ttl=%d time=%1.3f ms\n",
+	r, net->ad[0].print_ip, ntohs((*seq)), ttl, ms);
+	update_ms(net, ms, ntohs((*seq)));
 	net->p_succ++;
 	(*seq) += ntohs(1);
 	sleep(1);
@@ -85,14 +85,14 @@ handle_pkt_reply(t_net *net, void *buf, size_t len, uint16_t *seq, size_t r)
 
 	if (seq == 0) {
 		if (net->f_verbose) {
-			fprintf(stdout, "PING %s (%s): %d data bytes, id 0x%x = %d\n",
+			fprintf(stdout, "PING %s (%s): %ld data bytes, id 0x%x = %d\n",
 				net->ad[0].addr, net->ad[0].print_ip,
 				(len - sizeof(t_icmp)),
 				(uint16_t)(getpid() & 0xFFFF),
 				getpid());
 		}
 		else {
-			fprintf(stdout, "PING %s (%s): %d data bytes\n",
+			fprintf(stdout, "PING %s (%s): %ld data bytes\n",
 				net->ad[0].addr, net->ad[0].print_ip,
 				(len - sizeof(t_icmp)));
 		}

@@ -52,7 +52,7 @@ void
 free_struct(t_net *net)
 {
 	if (net) {
-		for (int i = 0; i < net->len_addrs; i++) {
+		for (size_t i = 0; i < net->len_addrs; i++) {
 			if (net->ad[i].addr)
 				free(net->ad[i].addr);
 			if (net->ad[i].print_ip)

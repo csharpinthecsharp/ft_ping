@@ -1,6 +1,6 @@
 NAME = ft_ping
 CC = cc
-CFLAGS = -g 
+CFLAGS = -g -Wall -Wextra -Werror 
 SRC = src/main.c \
       src/ping.c \
       src/utils.c \

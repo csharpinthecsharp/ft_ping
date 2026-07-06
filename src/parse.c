@@ -62,11 +62,11 @@ get_addrs_size(size_t len, char **srcs)
 }
 
 void
-parse_args (t_net *net, int ac, char **av)
+parse_args (t_net *net, size_t ac, char **av)
 {	
 	size_t i = 1;
 	size_t j = 0;
-	for (int i = 0; i < net->len_addrs; i++) {
+	for (size_t i = 0; i < net->len_addrs; i++) {
 		net->ad[i].addr = NULL;
 		net->ad[i].len_addr = 0;
 		net->ad[i].print_ip = NULL;
