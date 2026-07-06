@@ -10,6 +10,19 @@ send_packet(int fd, const void *buf, size_t len,
 		ft_error("ft_ping", strerror(errno));
 }
 
+static void
+update_ms(t_net *net, float ms, size_t index)
+{
+	if (index == 0) {
+		net->ms_max = ms;
+		net->ms_min = ms;
+	}
+	if (ms < net->ms_min)
+	       net->ms_min = ms;
+	else if (ms > net->ms_max)
+		net->ms_max = ms;	
+}
+
 void
 recv_packet(t_net *net, size_t seq, int fd, size_t len, void *buf)
 {
@@ -45,6 +58,7 @@ recv_packet(t_net *net, size_t seq, int fd, size_t len, void *buf)
 
 	size_t iphlen = (ip_hdr->ip_hl * 4);
 	int ttl = (ip_hdr->ip_ttl);
+	float ms = 0.0f;
 
 	t_icmp *iptr = (t_icmp *)(buf + iphlen);
 	if (iptr->type == ICMP_ECHOREPLY && iptr->id == htons(getpid())) {
@@ -63,8 +77,10 @@ recv_packet(t_net *net, size_t seq, int fd, size_t len, void *buf)
 			}
 		}
 		gettimeofday(&net->t_end, NULL);
+		ms = time_calc(&net->t_start, &net->t_end);
 		fprintf(stdout, "%ld bytes from %s: icmp_seq=%ld ttl=%d time=%1.3f ms\n",
-			       	r, net->ad[0].print_ip, seq, ttl, time_calc(&net->t_start, &net->t_end));
+			       	r, net->ad[0].print_ip, seq, ttl, ms);
+		update_ms(net, ms, seq);
 		net->p_succ++;
 	}
 	else

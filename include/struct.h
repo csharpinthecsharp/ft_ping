@@ -28,6 +28,8 @@ typedef struct s_net {
 	struct timeval t_start;
 	struct timeval t_end;
 	bool wrong_host_mltp;
+	float ms_min;
+	float ms_max;
 } t_net;
 
 #endif

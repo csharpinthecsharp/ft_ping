@@ -29,7 +29,6 @@ main(int ac, char **av)
 	net.sockfd = create_socket();
 	get_ping_infos(&net);
 	
-	
 	uint16_t seq = htons(0);
 	while (!stop) {
 		gettimeofday(&net.t_start, NULL);
@@ -43,8 +42,9 @@ main(int ac, char **av)
 	
 	fprintf(stdout, "--- %s ping statistics ---\n"
 			"%ld packets transmitted, %ld packets received, %ld%% packet loss\n"
-			"round-trip min/avg/max/stddev = ?/?/?/? ms\n", // STANDARD DEVIATION FORMULA
-		       		net.ad[0].addr, ntohs(seq), net.p_succ, ((net.p_lost * 100) / (size_t)ntohs(seq)));
+			"round-trip min/avg/max/stddev = %1.3f/?/%1.3f/? ms\n", // STANDARD DEVIATION FORMULA
+		       		net.ad[0].addr, ntohs(seq), net.p_succ, ((net.p_lost * 100) / (size_t)ntohs(seq)),
+					net.ms_min, net.ms_max);
 
 	if (net.wrong_host_mltp) {
 		free_struct(&net);
