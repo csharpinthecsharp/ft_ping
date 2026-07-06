@@ -35,16 +35,17 @@ main(int ac, char **av)
 		uint8_t buf[64];
 		gen_header(buf, sizeof(buf), seq);
 		send_packet(net.sockfd, buf, sizeof(buf), (struct sockaddr*)net.ad[0].ip, sizeof(struct sockaddr_in));
-		recv_packet(&net, ntohs(seq), net.sockfd, sizeof(buf), buf);
-		seq += htons(1);
-		usleep(1000000);
+		if (recv_packet(&net, ntohs(seq), net.sockfd, sizeof(buf), buf) != -1) {
+			seq += htons(1);
+			usleep(1000000);
+		}	
 	}
 	
 	fprintf(stdout, "--- %s ping statistics ---\n"
 			"%ld packets transmitted, %ld packets received, %ld%% packet loss\n"
-			"round-trip min/avg/max/stddev = %1.3f/?/%1.3f/? ms\n", // STANDARD DEVIATION FORMULA
+			"round-trip min/avg/max/stddev = %1.3f/%1.3f/%1.3f/? ms\n",
 		       		net.ad[0].addr, ntohs(seq), net.p_succ, ((net.p_lost * 100) / (size_t)ntohs(seq)),
-					net.ms_min, net.ms_max);
+					net.ms_min, (net.ms_total / (ntohs(seq))), net.ms_max);
 
 	if (net.wrong_host_mltp) {
 		free_struct(&net);

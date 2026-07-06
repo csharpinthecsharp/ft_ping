@@ -17,13 +17,14 @@ update_ms(t_net *net, float ms, size_t index)
 		net->ms_max = ms;
 		net->ms_min = ms;
 	}
+	net->ms_total += ms;
 	if (ms < net->ms_min)
 	       net->ms_min = ms;
 	else if (ms > net->ms_max)
 		net->ms_max = ms;	
 }
 
-void
+int
 recv_packet(t_net *net, size_t seq, int fd, size_t len, void *buf)
 {
 	struct timeval tv;
@@ -42,50 +43,54 @@ recv_packet(t_net *net, size_t seq, int fd, size_t len, void *buf)
 	msg.msg_namelen = sizeof(from);
 	msg.msg_iov = &iov;
 	msg.msg_iovlen = 1;
-	struct ip *ip_hdr = (struct ip*)buf;
 
 	int r = recvmsg(fd, &msg, 0);
 	if (r < 0) {
-		if (errno == EAGAIN || errno == EWOULDBLOCK)
-		{
+		if (errno == EAGAIN || errno == EWOULDBLOCK) {
 			if (net->f_verbose)
 				printf("Timeout..\n");
 			net->p_lost++;
+			return (-1);
 		}
 		else
 			ft_error("ft_ping", strerror(errno));
 	}
 
+	struct ip *ip_hdr = (struct ip*)buf;
 	size_t iphlen = (ip_hdr->ip_hl * 4);
 	int ttl = (ip_hdr->ip_ttl);
 	float ms = 0.0f;
-
+	
 	t_icmp *iptr = (t_icmp *)(buf + iphlen);
-	if (iptr->type == ICMP_ECHOREPLY && iptr->id == htons(getpid())) {
-		if (seq == 0) {
-			if (net->f_verbose) {
-				fprintf(stdout, "PING %s (%s): %d data bytes, id 0x%x = %d\n",
-				       	net->ad[0].addr, net->ad[0].print_ip,
-				       	(len - sizeof(t_icmp)),
-					 (uint16_t)(getpid() & 0xFFFF),
-					 getpid());
-			}
-			else {
-				fprintf(stdout, "PING %s (%s): %d data bytes\n",
-				       	net->ad[0].addr, net->ad[0].print_ip,
-				       	(len - sizeof(t_icmp)));
-			}
+
+	if (iptr->type != ICMP_ECHOREPLY)
+		return (-1);
+	if (iptr->id != htons(getpid()))
+		return (-1);
+
+	printf("Received %d bytes. Type: %d, Code: %d, ID: %d,; Seq: %d\n",
+			r, iptr->type, iptr->code, ntohs(iptr->id), seq);
+	if (seq == 0) {
+		if (net->f_verbose) {
+			fprintf(stdout, "PING %s (%s): %d data bytes, id 0x%x = %d\n",
+				net->ad[0].addr, net->ad[0].print_ip,
+				(len - sizeof(t_icmp)),
+				(uint16_t)(getpid() & 0xFFFF),
+				getpid());
 		}
-		gettimeofday(&net->t_end, NULL);
-		ms = time_calc(&net->t_start, &net->t_end);
-		fprintf(stdout, "%ld bytes from %s: icmp_seq=%ld ttl=%d time=%1.3f ms\n",
-			       	r, net->ad[0].print_ip, seq, ttl, ms);
-		update_ms(net, ms, seq);
-		net->p_succ++;
+		else {
+			fprintf(stdout, "PING %s (%s): %d data bytes\n",
+				net->ad[0].addr, net->ad[0].print_ip,
+				(len - sizeof(t_icmp)));
+		}
 	}
-	else
-		gettimeofday(&net->t_end, NULL);
+
+	gettimeofday(&net->t_end, NULL);
+	ms = time_calc(&net->t_start, &net->t_end);
+	fprintf(stdout, "%ld bytes from %s: icmp_seq=%ld ttl=%d time=%1.3f ms\n",
+	r, net->ad[0].print_ip, seq, ttl, ms);
+	update_ms(net, ms, seq);
+	net->p_succ++;
+	return (0);
+	//	gettimeofday(&net->t_end, NULL);
 }
-
-
-

@@ -30,6 +30,7 @@ typedef struct s_net {
 	bool wrong_host_mltp;
 	float ms_min;
 	float ms_max;
+	float ms_total;
 } t_net;
 
 #endif
